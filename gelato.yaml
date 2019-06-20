@@ -1,0 +1,237 @@
+openapi: 3.0.2
+
+info:
+  title: Gelato API
+  version: 1.0.0
+  description: |
+    Web API for managing an Italian ice cream shop.
+
+    Some **ice creams** you can order with it:
+
+    * Stracciatella
+    * Cioccolato
+    * Gianduia
+
+servers:
+  - url: http://gelato.io
+    description: Main server
+
+tags:
+  - name: Ice cream Maker
+    description: Operations for making gelato - yum!
+  - name: Pesky Customers
+    description: Dealing with the customers...
+  - name: Other Operations
+
+paths:
+  /icecreams:
+    get:
+      summary: Retrieve a list of ice creams
+      description: Gets a list of all the ice creams in the system, with links.
+      operationId: getIcecream
+      tags:
+        - Ice cream Maker
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/icecreamsArray"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    post:
+      summary: Create a new ice cream
+      description: Creates a new ice cream flavour based on the ice cream schema.
+      operationId: addIcrecream
+      tags:
+        - Ice cream Maker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/icecream"
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /icecreams/{id}:
+    get:
+      summary: Retrieve a list of ice creams
+      description: Gets a list of all the ice creams in the system, with links.
+      operationId: getIcecreambyId
+      tags:
+        - Ice cream Maker
+      parameters:
+        - name: id
+          description: id of the ice cream
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/icecream"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /toppings:
+    get:
+      summary: Retrieve list of toppings
+      description: Gets a list of all the toppings.
+      operationId: getTopping
+      tags:
+        - Ice cream Maker
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/toppingsArray"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    post:
+      summary: Create a new topping
+      description: Adds a new topping to the database.
+      operationId: addTopping
+      tags:
+        - Ice cream Maker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/topping"
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /customer:
+    get:
+      summary: Retrieve a list of customers
+      description: Gets a list of customers
+      operationId: getCustomer
+      tags:
+        - Pesky Customers
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/customersArray"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    post:
+      summary: Add a new customer of the gelateria
+      operationId: addCustomer
+      tags:
+        - Pesky Customers
+      responses:
+        200:
+          description: OK, here goes another customer!
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+components:
+
+  securitySchemes:
+    gelatoKey:
+      type: apiKey
+      in: header
+      name: x-gelato-key
+
+  schemas:
+    icecream:
+      type: object
+      required:
+        - flavour
+        - price
+      properties:
+        flavour:
+          type: string
+        price:
+          type: number
+          format: float
+        colour:
+          type: string
+        picture:
+          type: string
+          format: byte
+    person:
+      type: object
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
+        city:
+          type: string
+        gender:
+          enum:
+            - "Male"
+            - "Female"
+            - "Other"
+    customer:
+      type: object
+      properties:
+        shop:
+          type: string
+          format: address
+        points:
+          type: integer
+          format: int32
+
+    # Arrays for GET operations
+
+    icecreamsArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/icecream"
+    customersArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/customer"
+    toppingsArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/topping"
+
+    error:
+      type: object
+      properties:
+        errorText:
+          type: string
+        errorId:
+          type: integer
